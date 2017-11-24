@@ -1,0 +1,9 @@
+@import './reset.scss';
+@import './af/af.scss';
+@import './views/login.scss';
+@import './views/landing.scss';
+
+body, app, landing, login, .view-landing, .view-login {
+    display: flex;
+    flex: 1;
+}
