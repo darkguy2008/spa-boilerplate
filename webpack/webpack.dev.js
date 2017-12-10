@@ -9,6 +9,9 @@ const appConfig = {
 	entry: {
 		bundle: './src/app/index.ts'
 	},
+	devServer: {
+		historyApiFallback: true
+	},
 	plugins: [
 		new liveReloadPlugin()
 	]

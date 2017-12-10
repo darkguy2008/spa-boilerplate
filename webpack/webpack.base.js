@@ -1,9 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const outputDir = path.resolve(__dirname, '../dist');
+const extractCSS = new ExtractTextPlugin('[name].css');
 
 module.exports = {
     output: {
@@ -58,23 +60,37 @@ module.exports = {
             },
             { test: /\.html$/, loader: 'html-loader' },
             { test: /\.css$/, loader: 'style-loader!css-loader' },
-            { test: /\.scss$/, loader: 'style-loader!css-loader!sass-loader' },
-            { test: /\.(svg|gif|png|jpe?g|ttf|woff2?|eot)$/, loader: 'url-loader' }
+            { test: /\.scss$/, loader: extractCSS.extract(['css-loader', 'sass-loader']) },
+            {
+                test: /\.(ttf|woff2?|eot)$/,
+                use: [
+                    { loader: 'file-loader' }
+                ]
+            },
+            {
+                test: /\.(svg|gif|png|jpe?g)$/,
+                use: [
+                    { loader: 'url-loader' },
+                    { loader: 'image-webpack-loader' }
+                ]
+            }
         ]
     },
     plugins: [
+        extractCSS,
         new ForkTsCheckerWebpackPlugin({
             checkSyntacticErrors: true,
             tsconfig: path.resolve(__dirname, '../src/tsconfig.json')
         }),
+        new webpack.optimize.AggressiveMergingPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(true),
-        new webpack.optimize.ModuleConcatenationPlugin(),          
+        new webpack.optimize.ModuleConcatenationPlugin(),
         new CopyPlugin([{ copyUnmodified: true, from: path.resolve(__dirname, '../src/index.html'), to: path.resolve(outputDir, 'index.html') }]),
         new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)esm5/, path.resolve(__dirname, 'src/app')),
         new webpack.ProvidePlugin({
             _: 'lodash',
             $: 'jquery',
-            jQuery: 'jquery',
+            jQuery: 'jquery'
         })
     ],
 }
